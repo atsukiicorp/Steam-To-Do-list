@@ -418,10 +418,14 @@ function load(configRaw) {
     });
 }
 
+let authorized = false;
+let configReceived = false;
+
 // onChanged doit être enregistré AVANT onAuthorized
 twitch.configuration.onChanged(() => {
   const cfg = twitch.configuration.broadcaster;
   console.log('[ATSUKII] onChanged fired — broadcaster:', cfg);
+  configReceived = true;
   const raw = cfg && cfg.content ? cfg.content : null;
   console.log('[ATSUKII] raw content:', raw);
   load(raw);
@@ -429,10 +433,20 @@ twitch.configuration.onChanged(() => {
 
 twitch.onAuthorized(function(auth) {
   console.log('[ATSUKII] onAuthorized fired — auth:', auth);
+  authorized = true;
   const cfg = twitch.configuration.broadcaster;
   console.log('[ATSUKII] broadcaster at auth time:', cfg);
   const raw = cfg && cfg.content ? cfg.content : null;
   load(raw);
+
+  // Si onChanged ne se déclenche jamais (config vide ou non livrée)
+  // on affiche le message d'erreur après 3 secondes
+  setTimeout(() => {
+    if (!configReceived) {
+      console.log('[ATSUKII] onChanged never fired after 3s — config likely empty');
+      load(null);
+    }
+  }, 3000);
 });
 </script>
 
