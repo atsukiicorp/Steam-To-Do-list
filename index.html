@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=320">
+  <title>À Faire — Backlog Steam [PREVIEW]</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Barlow+Condensed:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0e0e10;
+      --surface:  #18181b;
+      --border:   #2a2a35;
+      --accent:   #9147ff;
+      --accent2:  #00b5ad;
+      --text:     #efeff1;
+      --subtext:  #848494;
+      --hover:    #1f1f28;
+      --bar-h:    6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #232329;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+      min-height: 100vh;
+      font-family: sans-serif;
+    }
+
+    .preview-frame {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .preview-label {
+      color: #666;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ──────────── WIDGET ──────────── */
+    .widget {
+      width: 320px;
+      background: var(--bg);
+      font-family: 'Barlow Condensed', sans-serif;
+      color: var(--text);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(145,71,255,0.2);
+    }
+
+    .widget-header {
+      background: linear-gradient(135deg, #1a0033 0%, #0d0d1a 60%, #001a1a 100%);
+      border-bottom: 2px solid var(--accent);
+      padding: 10px 12px 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .widget-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          45deg,
+          transparent, transparent 20px,
+          rgba(145,71,255,0.03) 20px,
+          rgba(145,71,255,0.03) 21px
+        );
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .controller-icon { font-size: 22px; filter: drop-shadow(0 0 6px var(--accent)); }
+
+    .header-text { flex: 1; }
+
+    .header-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .header-sub { font-size: 11px; color: var(--subtext); letter-spacing: 0.5px; }
+
+    .badge {
+      background: var(--accent);
+      color: white;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(145,71,255,0.5);
+      flex-shrink: 0;
+    }
+
+    .accent-bar {
+      height: var(--bar-h);
+      background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+      border-radius: 0 0 3px 3px;
+      margin-top: 8px;
+    }
+
+    .game-list {
+      max-height: 380px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 4px 0;
+    }
+
+    .game-list::-webkit-scrollbar { width: 4px; }
+    .game-list::-webkit-scrollbar-track { background: var(--surface); }
+    .game-list::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    .game-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s ease;
+    }
+
+    .game-row:last-child { border-bottom: none; }
+    .game-row:hover { background: var(--hover); }
+
+    .game-thumb {
+      width: 80px;
+      height: 37px;
+      object-fit: cover;
+      border-radius: 4px;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .game-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .game-name {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .game-time { font-size: 11px; color: var(--accent2); letter-spacing: 0.4px; }
+
+    .widget-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 5px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-label { font-size: 10px; color: var(--subtext); letter-spacing: 0.3px; }
+
+    .steam-logo { font-size: 10px; color: var(--subtext); display: flex; align-items: center; gap: 4px; }
+
+    .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent2);
+      display: inline-block;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--accent2); }
+      50% { opacity: 0.4; box-shadow: none; }
+    }
+
+    /* placeholder thumb */
+    .thumb-placeholder {
+      width: 80px;
+      height: 37px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-frame">
+    <span class="preview-label">Aperçu widget Twitch — 320px</span>
+
+    <div class="widget">
+      <div class="widget-header">
+        <div class="header-top">
+          <span class="controller-icon">🎮</span>
+          <div class="header-text">
+            <div class="header-title">Backlog — À Faire</div>
+            <div class="header-sub">Ma liste Steam</div>
+          </div>
+          <div class="badge">8</div>
+        </div>
+        <div class="accent-bar"></div>
+      </div>
+
+      <div class="game-list" id="gameList"></div>
+
+      <div class="widget-footer">
+        <span class="footer-label">Mis à jour le 02/04/2026 à 14:30</span>
+        <span class="steam-logo"><span class="dot"></span> Steam</span>
+      </div>
+    </div>
+
+    <span class="preview-label" style="margin-top:4px">↑ Données d'exemple — le vrai widget utilise tes jeux</span>
+  </div>
+
+<script>
+const config = JSON.parse(localStorage.getItem("config") || "{}");
+
+if(!config.api || !config.id){
+  document.getElementById("gameList").innerHTML = "⚠️ Configure via config.html";
+}else{
+
+fetch(`/.netlify/functions/games?key=${config.api}&steamid=${config.id}`)
+.then(r=>r.json())
+.then(data=>{
+  const list = document.getElementById("gameList");
+  if(!data.response || !data.response.games){
+    list.innerHTML="❌ Erreur données";
+    return;
+  }
+
+  const games = data.response.games;
+
+  document.querySelector(".badge").textContent = games.length;
+
+  list.innerHTML = games.slice(0,50).map(g=>`
+    <div class="game-row">
+      <img class="game-thumb"
+        src="https://cdn.akamai.steamstatic.com/steam/apps/${g.appid}/capsule_231x87.jpg"
+        onerror="this.style.display='none'">
+      <div class="game-info">
+        <span class="game-name">${g.name}</span>
+        <span class="game-time">⏱ ${g.playtime_forever ? Math.round(g.playtime_forever/60)+'h' : 'Jamais joué'}</span>
+      </div>
+    </div>
+  `).join("");
+
+  const now = new Date();
+  document.querySelector(".footer-label").textContent =
+    "Mis à jour le " + now.toLocaleDateString() + " " + now.toLocaleTimeString();
+
+})
+.catch(()=> {
+  document.getElementById("gameList").innerHTML="❌ Backend error";
+});
+
+}
+</script>
+
+</body>
+</html>

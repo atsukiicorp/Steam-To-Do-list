@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html><body style="background:#0e0e10;color:white;padding:20px">
+<h2>Config Steam</h2>
+<input id="api" placeholder="API Key"><br><br>
+<input id="id" placeholder="SteamID64"><br><br>
+<button onclick="save()">Save</button>
+
+<script>
+function save(){
+localStorage.setItem("config",JSON.stringify({
+api:document.getElementById("api").value,
+id:document.getElementById("id").value
+}));
+alert("Saved");
+}
+</script>
+</body></html>
