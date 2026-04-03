@@ -356,66 +356,75 @@ function load(configRaw) {
 
   const { apiKey, steamId, category } = config;
 
-  const steamUrl = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${apiKey}&steamid=${steamId}&include_appinfo=1`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(steamUrl)}`;
+  const steamUrl = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=' + apiKey + '&steamid=' + steamId + '&include_appinfo=1';
 
-  fetch(proxyUrl)
-    .then(r => r.json())
-    .then(data => {
-      const list = document.getElementById('gameList');
-      document.getElementById('shimmerLoad')?.remove();
+  var proxies = [
+    'https://corsproxy.io/?' + encodeURIComponent(steamUrl),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(steamUrl),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(steamUrl)
+  ];
 
-      if (!data.response || !data.response.games) {
-        showError('🎮', 'Aucun jeu trouvé', 'Vérifie ta clé API et ton Steam ID.');
-        return;
-      }
+  function tryProxy(index) {
+    if (index >= proxies.length) {
+      showError('🌐', 'Erreur réseau', 'Impossible de joindre l\'API Steam. Reessaie dans quelques secondes.');
+      return;
+    }
+    console.log('[ATSUKII] Trying proxy', index, ':', proxies[index]);
+    fetch(proxies[index])
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        var shimmer = document.getElementById('shimmerLoad');
+        if (shimmer) shimmer.remove();
 
-      let games = data.response.games;
+        if (!data.response || !data.response.games) {
+          showError('🎮', 'Aucun jeu trouve', 'Verifie ta cle API et ton Steam ID.');
+          return;
+        }
 
-      // Filter by category keyword if provided
-      if (category && category.trim() !== '') {
-        const kw = category.trim().toLowerCase();
-        games = games.filter(g => g.name && g.name.toLowerCase().includes(kw));
-      }
+        var games = data.response.games;
 
-      // Sort by playtime desc
-      games.sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-      games = games.slice(0, 50);
+        if (category && category.trim() !== '') {
+          var kw = category.trim().toLowerCase();
+          games = games.filter(function(g) { return g.name && g.name.toLowerCase().indexOf(kw) !== -1; });
+        }
 
-      // Update stats bar
-      const statsBar = document.getElementById('statsBar');
-      document.getElementById('gameCount').textContent = games.length;
-      if (category && category.trim()) {
-        document.getElementById('categoryTag').textContent = category.trim();
-      } else {
-        document.getElementById('categoryTag').textContent = 'Bibliothèque';
-      }
-      statsBar.style.display = 'flex';
+        games.sort(function(a, b) { return (b.playtime_forever || 0) - (a.playtime_forever || 0); });
+        games = games.slice(0, 50);
 
-      if (games.length === 0) {
-        showError('🔍', 'Aucun résultat', `Aucun jeu trouvé pour « ${category} ».`);
-        return;
-      }
+        var statsBar = document.getElementById('statsBar');
+        document.getElementById('gameCount').textContent = games.length;
+        document.getElementById('categoryTag').textContent = (category && category.trim()) ? category.trim() : 'Bibliotheque';
+        statsBar.style.display = 'flex';
 
-      list.innerHTML = games.map((g, i) => {
-        const thumb = g.img_logo_url
-          ? `<img class="game-thumb" src="https://media.steampowered.com/steamcommunity/public/images/apps/${g.appid}/${g.img_logo_url}.jpg" alt="" onerror="this.style.display='none'">`
-          : `<div class="game-thumb-placeholder"></div>`;
+        if (games.length === 0) {
+          showError('🔍', 'Aucun resultat', 'Aucun jeu trouve pour : ' + category);
+          return;
+        }
 
-        const hrs = formatHours(g.playtime_forever);
+        var list = document.getElementById('gameList');
+        list.innerHTML = games.map(function(g, i) {
+          var thumb = g.img_logo_url
+            ? '<img class="game-thumb" src="https://media.steampowered.com/steamcommunity/public/images/apps/' + g.appid + '/' + g.img_logo_url + '.jpg" alt="" onerror="this.style.display=\'none\'">'
+            : '<div class="game-thumb-placeholder"></div>';
+          var hrs = formatHours(g.playtime_forever);
+          return '<div class="game-item" style="animation-delay:' + Math.min(i * 0.03, 0.8) + 's">'
+            + '<span class="game-index">' + (i + 1) + '</span>'
+            + thumb
+            + '<span class="game-name" title="' + g.name.replace(/"/g, '&quot;') + '">' + g.name + '</span>'
+            + (hrs ? '<span class="game-hours">' + hrs + '</span>' : '')
+            + '</div>';
+        }).join('');
+      })
+      .catch(function(err) {
+        console.log('[ATSUKII] Proxy', index, 'failed:', err.message, '-- trying next');
+        tryProxy(index + 1);
+      });
+  }
 
-        return `
-          <div class="game-item" style="animation-delay:${Math.min(i * 0.03, 0.8)}s">
-            <span class="game-index">${i + 1}</span>
-            ${thumb}
-            <span class="game-name" title="${g.name}">${g.name}</span>
-            ${hrs ? `<span class="game-hours">${hrs}</span>` : ''}
-          </div>`;
-      }).join('');
-    })
-    .catch(() => {
-      showError('🌐', 'Erreur réseau', 'Impossible de joindre l\'API Steam.');
-    });
+  tryProxy(0);
 }
 
 let authorized = false;
