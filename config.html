@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+<script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
 </head>
+
 <body style="background:#0e0e10;color:white;padding:20px;font-family:sans-serif;">
 
 <h2>Configuration Steam</h2>
@@ -10,7 +11,7 @@
 <input id="api" placeholder="Steam API Key"><br><br>
 <input id="id" placeholder="Steam ID 64"><br><br>
 
-<button onclick="save()">Save</button>
+<button onclick="save()">Sauvegarder</button>
 
 <script>
 const twitch = window.Twitch.ext;
@@ -21,12 +22,7 @@ function save() {
     steamId: document.getElementById("id").value
   };
 
-  twitch.configuration.set(
-    "broadcaster",
-    "1",
-    JSON.stringify(data)
-  );
-
+  twitch.configuration.set("broadcaster","1",JSON.stringify(data));
   alert("Sauvegardé !");
 }
 </script>

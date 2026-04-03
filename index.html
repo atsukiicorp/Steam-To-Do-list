@@ -9,39 +9,50 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Barlow+Condensed:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-:root{--bg:#0e0e10;--surface:#18181b;--border:#2a2a35;--accent:#9147ff;--accent2:#00b5ad;--text:#efeff1;--subtext:#848494;--hover:#1f1f28;}
-body{background:#232329;display:flex;justify-content:center;padding:20px;font-family:sans-serif;}
-.widget{width:320px;background:var(--bg);font-family:'Barlow Condensed',sans-serif;color:var(--text);border-radius:8px;overflow:hidden;}
-.widget-header{background:linear-gradient(135deg,#1a0033,#0d0d1a,#001a1a);padding:10px;border-bottom:2px solid var(--accent);}
-.header-top{display:flex;align-items:center;gap:8px;}
-.badge{background:var(--accent);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-weight:bold;}
-.game-list{max-height:380px;overflow-y:auto;}
-.game-row{display:flex;gap:8px;padding:6px;border-bottom:1px solid var(--border);}
-.game-thumb{width:80px;height:37px;object-fit:cover;border-radius:4px;}
-.widget-footer{font-size:10px;padding:5px;background:var(--surface);display:flex;justify-content:space-between;}
+html, body {
+margin:0;
+width:100%;
+height:100%;
+background:#0e0e10;
+}
+
+.widget{
+width:100%;
+height:100%;
+color:white;
+font-family:'Barlow Condensed',sans-serif;
+}
+
+.badge{
+background:#9147ff;
+padding:6px;
+border-radius:6px;
+}
+
+.game-row{
+display:flex;
+gap:8px;
+padding:6px;
+border-bottom:1px solid #2a2a35;
+}
+
+.game-thumb{
+width:80px;
+height:37px;
+object-fit:cover;
+}
 </style>
 </head>
 
 <body>
 
 <div class="widget">
-<div class="widget-header">
-<div class="header-top">
-<span>🎮</span>
-<div>
-<div>Backlog — À Faire</div>
-<div style="font-size:11px;color:#888">Ma liste Steam</div>
-</div>
+<div style="display:flex;justify-content:space-between;padding:10px;">
+<span>🎮 Backlog</span>
 <div class="badge">0</div>
 </div>
-</div>
 
-<div id="gameList" class="game-list">Chargement...</div>
-
-<div class="widget-footer">
-<span id="date"></span>
-<span>Steam</span>
-</div>
+<div id="gameList">Chargement...</div>
 </div>
 
 <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
@@ -60,15 +71,7 @@ document.getElementById("gameList").innerHTML = "⚠️ Configure l'extension";
 return;
 }
 
-let config;
-try {
-config = JSON.parse(raw);
-} catch (e) {
-document.getElementById("gameList").innerHTML = "❌ config invalide";
-return;
-}
-
-const { apiKey, steamId } = config;
+const { apiKey, steamId } = JSON.parse(raw);
 
 fetch(`https://api.allorigins.win/raw?url=https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${apiKey}&steamid=${steamId}&include_appinfo=1`)
 .then(r => r.json())
@@ -87,20 +90,13 @@ document.querySelector(".badge").textContent = games.length;
 
 list.innerHTML = games.slice(0,50).map(g => `
 <div class="game-row">
-<img class="game-thumb"
-src="https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/capsule_231x87.jpg">
+<img class="game-thumb" src="https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/capsule_231x87.jpg">
 <div>
 <div>${g.name}</div>
-<div style="font-size:11px;color:#00b5ad">
-${g.playtime_forever ? Math.round(g.playtime_forever/60)+'h' : 'Jamais joué'}
-</div>
+<div>${g.playtime_forever ? Math.round(g.playtime_forever/60)+'h' : 'Jamais joué'}</div>
 </div>
 </div>
 `).join("");
-
-const now = new Date();
-document.getElementById("date").textContent =
-"Mis à jour le " + now.toLocaleDateString() + " " + now.toLocaleTimeString();
 
 })
 .catch(()=>{
