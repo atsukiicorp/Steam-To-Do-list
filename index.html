@@ -246,25 +246,38 @@
 
 <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
 
+<script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+
 <script>
 const twitch = window.Twitch.ext;
 
 twitch.onAuthorized(() => {
 
+  console.log("Twitch ready");
+
   twitch.configuration.onChanged(() => {
 
-    const config = twitch.configuration.broadcaster?.content;
+    console.log("config changed");
 
-    if (!config) {
-      document.getElementById("gameList").innerHTML = "⚠️ Configure l'extension";
+    const raw = twitch.configuration.broadcaster?.content;
+
+    console.log("CONFIG RAW:", raw);
+
+    if (!raw) {
+      document.getElementById("gameList").innerHTML = "⚠️ Configure l'extension dans Twitch";
       return;
     }
 
-    const { apiKey, steamId } = JSON.parse(config);
+    const { apiKey, steamId } = JSON.parse(raw);
+
+    console.log("API:", apiKey);
+    console.log("STEAM:", steamId);
 
     fetch(`https://api.allorigins.win/raw?url=https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${apiKey}&steamid=${steamId}&include_appinfo=1`)
     .then(r => r.json())
     .then(data => {
+
+      console.log("DATA:", data);
 
       const list = document.getElementById("gameList");
 
@@ -290,6 +303,10 @@ twitch.onAuthorized(() => {
         </div>
       `).join("");
 
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("gameList").innerHTML = "❌ erreur fetch";
     });
 
   });
