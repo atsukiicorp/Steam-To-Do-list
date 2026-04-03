@@ -404,9 +404,11 @@ function load(configRaw) {
 
         var list = document.getElementById('gameList');
         list.innerHTML = games.map(function(g, i) {
-          var thumb = g.img_logo_url
-            ? '<img class="game-thumb" src="https://media.steampowered.com/steamcommunity/public/images/apps/' + g.appid + '/' + g.img_logo_url + '.jpg" alt="" onerror="this.style.display=\'none\'">'
-            : '<div class="game-thumb-placeholder"></div>';
+          var thumb = `
+			<img class="game-thumb"
+			src="https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/capsule_231x87.jpg"
+			onerror="this.outerHTML='<div class="game-thumb-placeholder"></div>'">
+			`;
           var hrs = formatHours(g.playtime_forever);
           return '<div class="game-item" style="animation-delay:' + Math.min(i * 0.03, 0.8) + 's">'
             + '<span class="game-index">' + (i + 1) + '</span>'
