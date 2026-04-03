@@ -359,9 +359,7 @@ function load(configRaw) {
   const steamUrl = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=' + apiKey + '&steamid=' + steamId + '&include_appinfo=1';
 
   var proxies = [
-    'https://corsproxy.io/?' + encodeURIComponent(steamUrl),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(steamUrl),
-    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(steamUrl)
+	'https://yellow-morning-282b.atsukii-corp.workers.dev/?url=' + encodeURIComponent(steamUrl)
   ];
 
   function tryProxy(index) {
@@ -419,7 +417,7 @@ function load(configRaw) {
         }).join('');
       })
       .catch(function(err) {
-        console.log('[ATSUKII] Proxy', index, 'failed:', err.message, '-- trying next');
+        console.log('[ATSUKII] Worker fetch failed:', err.message);
         tryProxy(index + 1);
       });
   }
