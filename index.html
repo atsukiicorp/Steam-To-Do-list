@@ -342,6 +342,7 @@ function showError(icon, title, sub) {
     </div>`;
 }
 
+
 function load(configRaw) {
   if (!configRaw) {
     showError('⚙️', 'Configuration requise', 'Configure l\'extension via le dashboard Twitch.');
@@ -404,10 +405,10 @@ function load(configRaw) {
 
         var list = document.getElementById('gameList');
         list.innerHTML = games.map(function(g, i) {
-          var thumb = `
+         var thumb = `
 			<img class="game-thumb"
 			src="https://cdn.cloudflare.steamstatic.com/steam/apps/${g.appid}/capsule_231x87.jpg"
-			onerror="this.outerHTML='<div class="game-thumb-placeholder"></div>'">
+			onerror="this.style.display='none'">
 			`;
           var hrs = formatHours(g.playtime_forever);
           return '<div class="game-item" style="animation-delay:' + Math.min(i * 0.03, 0.8) + 's">'
