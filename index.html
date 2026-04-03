@@ -391,7 +391,7 @@ function load(configRaw) {
         }
 
         games.sort(function(a, b) { return (b.playtime_forever || 0) - (a.playtime_forever || 0); });
-        games = games.slice(0, 50);
+        games = games.slice(0, 100);
 
         var statsBar = document.getElementById('statsBar');
         document.getElementById('gameCount').textContent = games.length;
