@@ -421,12 +421,16 @@ function load(configRaw) {
 // onChanged doit être enregistré AVANT onAuthorized
 twitch.configuration.onChanged(() => {
   const cfg = twitch.configuration.broadcaster;
+  console.log('[ATSUKII] onChanged fired — broadcaster:', cfg);
   const raw = cfg && cfg.content ? cfg.content : null;
+  console.log('[ATSUKII] raw content:', raw);
   load(raw);
 });
 
-twitch.onAuthorized(() => {
+twitch.onAuthorized(function(auth) {
+  console.log('[ATSUKII] onAuthorized fired — auth:', auth);
   const cfg = twitch.configuration.broadcaster;
+  console.log('[ATSUKII] broadcaster at auth time:', cfg);
   const raw = cfg && cfg.content ? cfg.content : null;
   load(raw);
 });
