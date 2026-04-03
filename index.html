@@ -418,14 +418,17 @@ function load(configRaw) {
     });
 }
 
-twitch.onAuthorized(() => {
-  const raw = twitch.configuration.broadcaster?.content;
+// onChanged doit être enregistré AVANT onAuthorized
+twitch.configuration.onChanged(() => {
+  const cfg = twitch.configuration.broadcaster;
+  const raw = cfg && cfg.content ? cfg.content : null;
   load(raw);
+});
 
-  twitch.configuration.onChanged(() => {
-    const raw = twitch.configuration.broadcaster?.content;
-    load(raw);
-  });
+twitch.onAuthorized(() => {
+  const cfg = twitch.configuration.broadcaster;
+  const raw = cfg && cfg.content ? cfg.content : null;
+  load(raw);
 });
 </script>
 

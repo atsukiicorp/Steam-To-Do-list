@@ -312,17 +312,26 @@ html, body {
 const twitch = window.Twitch.ext;
 
 // Pre-fill if config already exists
-twitch.onAuthorized(() => {
-  const raw = twitch.configuration.broadcaster?.content;
-  if (raw) {
-    try {
-      const c = JSON.parse(raw);
-      if (c.apiKey)    document.getElementById('api').value      = c.apiKey;
-      if (c.steamId)   document.getElementById('steamid').value  = c.steamId;
-      if (c.category)  document.getElementById('category').value = c.category;
-    } catch(e) {}
-  }
+// Pré-remplit si une config existe déjà — onChanged AVANT onAuthorized
+twitch.configuration.onChanged(() => {
+  prefill();
 });
+
+twitch.onAuthorized(() => {
+  prefill();
+});
+
+function prefill() {
+  const cfg = twitch.configuration.broadcaster;
+  const raw = cfg && cfg.content ? cfg.content : null;
+  if (!raw) return;
+  try {
+    const c = JSON.parse(raw);
+    if (c.apiKey)    document.getElementById('api').value      = c.apiKey;
+    if (c.steamId)   document.getElementById('steamid').value  = c.steamId;
+    if (c.category !== undefined) document.getElementById('category').value = c.category;
+  } catch(e) {}
+}
 
 function save() {
   const data = {
@@ -336,8 +345,12 @@ function save() {
     return;
   }
 
-  twitch.configuration.set('broadcaster', '1', JSON.stringify(data));
-  showToast('✓ Configuration sauvegardée');
+  try {
+    twitch.configuration.set('broadcaster', '1', JSON.stringify(data));
+    showToast('✓ Configuration sauvegardée');
+  } catch(e) {
+    showToast('❌ Erreur lors de la sauvegarde', true);
+  }
 }
 
 function showToast(msg, isError = false) {
