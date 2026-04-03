@@ -1,17 +1,35 @@
 <!DOCTYPE html>
-<html><body style="background:#0e0e10;color:white;padding:20px">
-<h2>Config Steam</h2>
-<input id="api" placeholder="API Key"><br><br>
-<input id="id" placeholder="SteamID64"><br><br>
+<html>
+<head>
+  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+</head>
+<body style="background:#0e0e10;color:white;padding:20px;font-family:sans-serif;">
+
+<h2>Configuration Steam</h2>
+
+<input id="api" placeholder="Steam API Key"><br><br>
+<input id="id" placeholder="Steam ID 64"><br><br>
+
 <button onclick="save()">Save</button>
 
 <script>
-function save(){
-localStorage.setItem("config",JSON.stringify({
-api:document.getElementById("api").value,
-id:document.getElementById("id").value
-}));
-alert("Saved");
+const twitch = window.Twitch.ext;
+
+function save() {
+  const data = {
+    apiKey: document.getElementById("api").value,
+    steamId: document.getElementById("id").value
+  };
+
+  twitch.configuration.set(
+    "broadcaster",
+    "1",
+    JSON.stringify(data)
+  );
+
+  alert("Sauvegardé !");
 }
 </script>
-</body></html>
+
+</body>
+</html>
