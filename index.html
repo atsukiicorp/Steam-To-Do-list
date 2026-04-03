@@ -251,6 +251,9 @@ if(!config.api || !config.id){
   document.getElementById("gameList").innerHTML = "⚠️ Configure via config.html";
 }else{
 
+const API_KEY = "0648759F5ACC557E3E038D37488B3D2D";
+const STEAM_ID = "76561199809298731";
+
 fetch(`https://api.allorigins.win/raw?url=https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${API_KEY}&steamid=${STEAM_ID}&include_appinfo=1`)
 .then(r => r.json())
 .then(data => {
